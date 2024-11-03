@@ -42,8 +42,6 @@ public class ProductController {
     return ResponseEntity.status(201).body("Producto creado exitosamente");
 }
 
-
-
     @GetMapping("/productos")
     public ResponseEntity<List<Product>> obtenerProductos(@RequestParam int usuarioId) {
         List<Product> productos = productRepository.findByUsuarioId(usuarioId);
