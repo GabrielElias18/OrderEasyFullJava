@@ -3,17 +3,15 @@ package com.ejemplo.miproyecto.models;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDateTime;
 
 @Data
-@Document(collection = "productos")
-public class Product {
+@Document(collection = "egresos")
+public class Egreso {
     @Id
     private String id; // ObjectId de MongoDB
-    private int productoId;
-    private String nombre;
-    private String descripcion;
+    private String productoNombre; // Campo para nombre del producto
     private int cantidad;
-    private String categoriaNombre;
-    private double precioDeVenta;
-    private double precioDeCompra;
+    private double total;
+    private LocalDateTime fecha;
 }

@@ -12,5 +12,4 @@ public class Category {
     private int categoriaId;
     private String nombre;
     private String descripcion;
-    private int usuarioId;
 }
