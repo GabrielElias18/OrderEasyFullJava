@@ -46,10 +46,43 @@ public class ProductController {
         return ResponseEntity.status(201).body("Producto creado exitosamente");
     }
 
-
     @GetMapping("/productos")
     public ResponseEntity<List<Product>> obtenerProductos() {
         List<Product> productos = productRepository.findAll();
         return ResponseEntity.ok(productos);
+    }
+
+    @PutMapping("/productos/nombre/{nombre}")
+    public ResponseEntity<?> actualizarProductoPorNombre(@PathVariable String nombre, @RequestBody Product productDetails) {
+        Product product = productRepository.findByNombre(nombre);
+        if (product == null) {
+            return ResponseEntity.status(404).body("Producto no encontrado");
+        }
+
+        Category category = categoryRepository.findByNombre(productDetails.getCategoriaNombre());
+        if (category == null) {
+            return ResponseEntity.status(400).body("Categoría no encontrada");
+        }
+
+        product.setNombre(productDetails.getNombre());
+        product.setDescripcion(productDetails.getDescripcion());
+        product.setCantidad(productDetails.getCantidad());
+        product.setCategoriaNombre(productDetails.getCategoriaNombre());
+        product.setPrecioDeVenta(productDetails.getPrecioDeVenta());
+        product.setPrecioDeCompra(productDetails.getPrecioDeCompra());
+        productRepository.save(product);
+
+        return ResponseEntity.ok("Producto actualizado exitosamente");
+    }
+
+    @DeleteMapping("/productos/nombre/{nombre}")
+    public ResponseEntity<?> eliminarProductoPorNombre(@PathVariable String nombre) {
+        Product product = productRepository.findByNombre(nombre);
+        if (product == null) {
+            return ResponseEntity.status(404).body("Producto no encontrado");
+        }
+
+        productRepository.delete(product);
+        return ResponseEntity.ok("Producto eliminado exitosamente");
     }
 }
