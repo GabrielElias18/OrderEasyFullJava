@@ -51,4 +51,55 @@ public class EgresoController {
         List<Egreso> egresos = egresoRepository.findAll();
         return ResponseEntity.ok(egresos);
     }
+
+    @PutMapping("/egresos/{id}")
+    public ResponseEntity<?> actualizarEgreso(@PathVariable String id, @RequestBody Egreso egresoActualizado) {
+        // Buscar el egreso por ID
+        Egreso egresoExistente = egresoRepository.findById(id).orElse(null);
+        if (egresoExistente == null) {
+            return ResponseEntity.status(404).body("Egreso no encontrado");
+        }
+
+        // Obtener el producto relacionado al egreso
+        Product producto = productRepository.findByNombre(egresoExistente.getProductoNombre());
+        if (producto == null) {
+            return ResponseEntity.status(400).body("Producto no encontrado: " + egresoExistente.getProductoNombre());
+        }
+
+        // Revertir el inventario del egreso anterior
+        producto.setCantidad(producto.getCantidad() - egresoExistente.getCantidad());
+
+        // Verificar si hay suficiente inventario para la nueva cantidad
+        producto.setCantidad(producto.getCantidad() + egresoActualizado.getCantidad());  // Agregar la nueva cantidad
+        productRepository.save(producto);
+
+        // Actualizar el egreso con los nuevos valores
+        egresoExistente.setCantidad(egresoActualizado.getCantidad());
+        egresoExistente.setFecha(egresoActualizado.getFecha());
+        egresoExistente.setTotal(egresoActualizado.getCantidad() * producto.getPrecioDeCompra());
+        egresoRepository.save(egresoExistente);
+
+        return ResponseEntity.ok("Egreso actualizado exitosamente");
+    }
+
+    @DeleteMapping("/egresos/{id}")
+    public ResponseEntity<?> eliminarEgreso(@PathVariable String id) {
+        // Buscar el egreso por ID
+        Egreso egreso = egresoRepository.findById(id).orElse(null);
+        if (egreso == null) {
+            return ResponseEntity.status(404).body("Egreso no encontrado");
+        }
+
+        // Obtener el producto relacionado al egreso
+        Product producto = productRepository.findByNombre(egreso.getProductoNombre());
+        if (producto != null) {
+            // Revertir la cantidad al inventario
+            producto.setCantidad(producto.getCantidad() - egreso.getCantidad());
+            productRepository.save(producto);
+        }
+
+        // Eliminar el egreso
+        egresoRepository.delete(egreso);
+        return ResponseEntity.ok("Egreso eliminado exitosamente");
+    }
 }
