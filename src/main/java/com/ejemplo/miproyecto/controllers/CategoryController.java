@@ -57,5 +57,47 @@ public class CategoryController {
         }
     }
 
-
-}
+        // API para editar categoría
+        @PutMapping("/categorias/{nombre}")
+        public ResponseEntity<?> updateCategory(@PathVariable String nombre, @RequestBody Category updatedCategory) {
+            try {
+                Category existingCategory = categoryRepository.findByNombre(nombre);
+                if (existingCategory == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
+                }
+    
+                // Actualizar los campos necesarios
+                existingCategory.setNombre(updatedCategory.getNombre());
+                existingCategory.setDescripcion(updatedCategory.getDescripcion());
+    
+                categoryRepository.save(existingCategory);
+    
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Categoría actualizada exitosamente");
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error al actualizar la categoría", e);
+            }
+        }
+    
+        // API para eliminar categoría
+        @DeleteMapping("/categorias/{nombre}")
+        public ResponseEntity<?> deleteCategory(@PathVariable String nombre) {
+            try {
+                Category category = categoryRepository.findByNombre(nombre);
+                if (category == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoría no encontrada");
+                }
+    
+                categoryRepository.delete(category);
+    
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Categoría eliminada exitosamente");
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar la categoría", e);
+            }
+        }
+    }
